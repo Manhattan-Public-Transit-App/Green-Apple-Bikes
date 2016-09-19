@@ -9,10 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-view1">
+<dom-module id="my-view4">
   <template>
     <style include="shared-styles">
       :host {
@@ -22,15 +21,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <div class="card button-container"><a name="view3" href="/view3"><paper-button raised>Determine fastest route</paper-button></a></div>
-    <div class="card button-container"><a name="view2" href="/view2"><paper-button raised>View Map</paper-button></a></div>
-        <div class="card button-container"><a name="view4" href="/view4"><paper-button raised>Report a Problem</paper-button></a></div>
-    
+    <div class="card">
+      <h1>Report a Problem</h1>
   </template>
 
   <script>
     Polymer({
-      is: 'my-view1'
+      is: 'my-view4'
     });
   </script>
 </dom-module>
