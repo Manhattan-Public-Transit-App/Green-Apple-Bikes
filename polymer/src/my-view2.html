@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-view2">
@@ -19,13 +20,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+	  google-map {
+		height: 600px;
+		zoom =50;
+	  }
     </style>
 
-    <div class="card">
-      <h1>Map</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
-    </div>
+    <div class="card"><google-map latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc"></google-map></div>
   </template>
 
   <script>
