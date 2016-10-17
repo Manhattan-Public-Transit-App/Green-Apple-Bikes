@@ -1,11 +1,12 @@
 {
   "entrypoint": "index.html",
-  "shell": "src/my-app.html",
+  "shell": "src/manhattan-transit-app.html",
   "fragments": [
-    "src/my-view1.html",
-    "src/my-view2.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
+    "src/manhattan-transit-home.html",
+    "src/manhattan-transit-map.html",
+    "src/manhattan-transit-route.html",
+    "src/manhattan-transit-report.html",
+    "src/manhattan-transit-view404.html"
   ],
   "sourceGlobs": [
    "src/**/*",

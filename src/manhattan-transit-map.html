@@ -9,11 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-view3">
+<dom-module id="manhattan-transit-map">
   <template>
     <style include="shared-styles">
       :host {
@@ -21,17 +20,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+	  google-map {
+		height: 600px;
+		zoom =50;
+	  }
     </style>
 
-    <div class="card"><paper-input id="origin" label="Starting Location"></paper-input></div>
-    <div class="card"><paper-input id="destination" label="Destination"></paper-input></div>
-    <br><br>
-    <div class="card button-container"><paper-button id="submit" raised>Determine Fastest Route</paper-button></div>
+    <div class="card"><google-map latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc"></google-map></div>
   </template>
 
   <script>
     Polymer({
-      is: 'my-view3'
+      is: 'manhattan-transit-map'
     });
   </script>
 </dom-module>

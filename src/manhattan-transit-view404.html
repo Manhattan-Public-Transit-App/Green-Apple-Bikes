@@ -9,25 +9,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="shared-styles.html">
 
-<dom-module id="my-view4">
+<dom-module id="view404">
   <template>
-    <style include="shared-styles">
+    <style>
       :host {
         display: block;
 
-        padding: 10px;
+        padding: 10px 20px;
       }
     </style>
 
-    <div class="card">
-      <h1>Report a Problem</h1>
+    Oops you hit a 404. <a href="/">Head back to home.</a>
   </template>
 
   <script>
     Polymer({
-      is: 'my-view4'
+      is: 'view404'
     });
   </script>
 </dom-module>
