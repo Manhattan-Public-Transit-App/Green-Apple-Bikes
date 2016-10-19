@@ -25,13 +25,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		zoom =50;
 	  }
     </style>
-	<google-map id="map" latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc" kml="http://people.cs.ksu.edu/~cbald24/GAB_Racks.kml">		<template is="dom-repeat" items="{{employees}}">
-	<google-map-marker icon="/images/map-bike.png" latitude={{item.latitude}} longitude={{item.longitude}}>
-					</google-map-marker>
-    <!--<div class="card">
-		<google-map latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc" kml="http://people.cs.ksu.edu/~cbald24/GAB_Racks.kml"></google-map>
-	</div>
-	-->
+	<google-map id="map" latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc">
+		<template is="dom-repeat" items="{{racks}}">
+			<google-map-marker icon="/images/map-rack.png" latitude={{item.latitude}} longitude={{item.longitude}}></google-map-marker>
+		</template>
+		<template is="dom-repeat" items="{{bikes}}">
+			<google-map-marker icon="/images/map-bike.png" latitude={{item.latitude}} longitude={{item.longitude}}></google-map-marker>
 		</template>
 	</google-map>
   </template>
@@ -39,19 +38,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'manhattan-transit-map',
-	  
-      ready: function() {
-        this.employees = new function(){
-			return [
-            {latitude: '39.182360', longitude: '-96.575741'},
-            {latitude: '39.183', longitude: '-96.577950'},
-			{latitude: '39.188', longitude: '-96.577950'}
-			];
-		}
-      }
+	  ready: updateBikes
     });
-	$(document).ready(function(){
-			$("google-map").append("<google-map-marker latitude='39.182360' longitude='-96.575741'/>");
-	});
+    
+    function updateBikes() {
+    	this.racks = new function(){
+        	var request = new XMLHttpRequest();
+   			request.open("GET", "/src/racks.json", false);
+   			request.send(null)
+   			var racks = JSON.parse(request.responseText);
+			return racks;
+		}
+		this.bikes = new function(){
+        	var request = new XMLHttpRequest();
+   			request.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
+   			request.send(null)
+   			var racks = JSON.parse(request.responseText);
+			return racks;
+		}
+		setTimeout(updateBikes, 5000);
+    }
   </script>
 </dom-module>
