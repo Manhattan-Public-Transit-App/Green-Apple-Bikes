@@ -53,8 +53,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         	var request = new XMLHttpRequest();
    			request.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
    			request.send(null)
-   			var racks = JSON.parse(request.responseText);
-			return racks;
+   			var bikes = JSON.parse(request.responseText);
+			return bikes;
 		}
 		setTimeout(updateBikes, 5000);
     }
