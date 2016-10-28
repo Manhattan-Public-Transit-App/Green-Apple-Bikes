@@ -12,7 +12,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
 <dom-module id="manhattan-transit-route">
   <template>
@@ -23,16 +22,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         padding: 10px;
       }
     </style>
-
-    <div id="origin" class="card"><paper-input label="Starting Location"></paper-input></div>
-    <div id="destination" class="card"><paper-input label="Destination"></paper-input></div>
+    <div class="card"><paper-input id="origin" label="Starting Location"></paper-input></div>
+    <div class="card"><paper-input id="destination" label="Destination"></paper-input></div>
     <br><br>
-    <div class="card button-container"><paper-button id="submit" raised>Determine Fastest Route</paper-button></div>
+    <div class="card button-container"><paper-button id="submit" on-click="calculateRoute" raised>Determine Fastest Route</paper-button></div>
   </template>
 
   <script>
     Polymer({
-      is: 'manhattan-transit-route'
-    });;
+      is: 'manhattan-transit-route',
+      calculateRoute: function(e) {
+      	alert("Origin: " + this.$.origin.inputElement.value + "\nDestination: " + this.$.destination.inputElement.value);
+      }
+    });
   </script>
 </dom-module>
