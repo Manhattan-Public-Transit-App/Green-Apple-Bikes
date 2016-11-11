@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc&libraries=places"></script>
 
 <dom-module id="manhattan-transit-route">
   <template>
@@ -31,21 +32,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'manhattan-transit-route',
+      ready: function() {
+        var originInput = this.$.origin.inputElement;
+    	originAutocomplete = new google.maps.places.Autocomplete(originInput);
+    	var destinationInput = this.$.destination.inputElement;
+    	destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+      },
       calculateRoute: function(e) {
-		var apikey = "AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc";
-		var origin = this.$.origin.inputElement.value;
-		var destination = this.$.destination.inputElement.value;
-      	console.log("Origin: " + origin + "\nDestination: " + destination);
-      	findRoute(origin, destination, "driving");
+      	var geocoder = new google.maps.Geocoder();
+		var originValue = this.$.origin.inputElement.value;
+		var destinationValue = this.$.destination.inputElement.value;
+		
+		
+		var origin;
+		geocoder.geocode( { 'address': originValue}, function(results, status) {
+      		if (status == 'OK') {
+      			origin = results[0].geometry.location;
+      			var destination;
+				geocoder.geocode( { 'address': destinationValue }, function(results, status) {
+      				if (status == 'OK') {
+        				destination = results[0].geometry.location;
+        				console.log("Origin: ");
+      					console.log(origin);
+      					console.log("Destination: ");
+      					console.log(destination);   
+      	   	
+      					findRoute(origin, destination, "driving");
+      				} else {
+        				alert('Geocode was not successful for the following reason: ' + status);
+      				}
+    			});
+      		} else {
+        		alert('Geocode was not successful for the following reason: ' + status);
+      		}
+    	});
       }
     });
     
     
-    
-    
-    
 	function findRoute(theOrigin, theDestination, mode) {
-	
 		var bikeRequest = new XMLHttpRequest();
    		bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
    		bikeRequest.send(null)
@@ -69,6 +94,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			theMode = google.maps.DirectionsTravelMode.BICYCLING;
 		}
 		
+		
+		
 		var directionsService = new google.maps.DirectionsService();
 		var directionsRequest = {
 			origin: theOrigin,
@@ -85,8 +112,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					console.log(response.routes[0].legs[0].distance.text);
 					console.log(response.routes[0].legs[0].duration.text);
 					response.routes[0].legs[0].steps.forEach(function(step) {
-					alert(step.instructions);
-				});
+						alert(step.instructions);
+					});
 				console.log(response);
 			} else {
 				alert("Could not determine one of the locations.");
@@ -94,6 +121,4 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		});
 	}
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc"
-    async defer></script>
 </dom-module>
