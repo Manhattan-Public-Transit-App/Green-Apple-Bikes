@@ -30,6 +30,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   <script>
+   	var destinationLatLong;
+    var originLatLong;
     Polymer({
       is: 'manhattan-transit-route',
       ready: function() {
@@ -37,9 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var originInput = this.$.origin.inputElement;
     	originAutocomplete = new google.maps.places.Autocomplete(originInput);
     	var destinationInput = this.$.destination.inputElement;
-    	destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
-    	var destinationLatLong;
-    	var originLatLong;
+    	destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput)
     	google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
     		var place = originAutocomplete.getPlace();
     		originLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
@@ -52,67 +52,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // This function is the function called by the button on the page.
       calculateRoute: function(e) {
       	// Initialize values:
-      	var geocoder = new google.maps.Geocoder();
-		var originValue = this.$.origin.inputElement.value;
-		var destinationValue = this.$.destination.inputElement.value;
-		var origin;
-		var destination;
+		var origin = this.$.origin.inputElement.value;
+		var destination = this.$.destination.inputElement.value;
 		
 		// Get available bikes:
 		var availableBikes = getBikes();
 		if (availableBikes.length == 0) {
 			alert("There are currently no bikes available.");
 		} 
-		
-		// Geocode the origin value
-		geocoder.geocode( { 'address': originValue}, function(originResults, originStatus) {
-			// If the geocode of the origin succeeds
-      		if (originStatus == 'OK') {
-      			// Set the origin to the geocoded value.
-      			origin = originResults[0].geometry.location;
-      			// Now Geocode the destination value.
-				geocoder.geocode( { 'address': destinationValue }, function(results, status) {
-					// If the geocode of the destination succeeds
-      				if (status == 'OK') {
-      					// Set the destination to the geocoded value
-        				destination = results[0].geometry.location;
-        				
-        				// Now let's find the time it takes to walk to the destination directly.      	   	
-      					//var walkingTime = findRoute(new google.maps.LatLng(originLat, originLng), new google.maps.LatLng(destinationLat, destinationLng), "walking");
-      					var walkingTime = findRoute(origin, destination, "walking");
-      					var bikingTime;
-      					// If we have an available bike
-      					if (availableBikes.length > 0) {
-      						// Let's check which bike is closest to the origin
-      						var theNearestBike = NearestBike(availableBikes, origin.lat(), origin.lng());
-      						// Create new LatLng with bike's location.
-      						var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
-      						console.log(bikeLatLong);
-      						bikingTime = findRoute(origin, bikeLatLong , "walking");
-      						bikingTime += findRoute(bikeLatLong, destination, "bicycling");
-      					}
-      					console.log("Walking time: " + walkingTime);
-      					console.log("Biking time: " + bikingTime);
-      					if (bikingTime < walkingTime) {
-      						alert("Biking is faster. Routing you to nearest bike.");
-      						window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination);
-      					} else {
-      						alert("Walking is faster. Routing you to destination.");
-      						window.open("https://www.google.com/maps/dir/" + origin + "/" + destination);
-      					}
-      					
-      				} else {
-      					// Something went wrong geocoding the destination value
-        				alert('Destination geocode was not successful: ' + status);
-      				}
-    			});
-      		} else {
-      			// Something went wrong geocoding the origin value.
-        		alert('Origin geocode was not successful: ' + status);
-      		}
-    	});
+
+        // Now let's find the time it takes to walk to the destination directly.      	   	
+      	var walkingTime = findRoute(originLatLong, destinationLatLong, "walking");
+      	var bikingTime;
+      	// If we have an available bike
+      	if (availableBikes.length > 0) {
+      		// Let's check which bike is closest to the origin
+      		var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
+      		// Create new LatLng with bike's location.
+      		var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
+      		// Time to walk to the bike
+      		bikingTime = findRoute(origin, bikeLatLong , "walking");
+      		// Time to bike to the destination
+      		bikingTime += findRoute(bikeLatLong, destination, "bicycling");
+      	}
+      	console.log("Walking time: " + walkingTime);
+      	console.log("Biking time: " + bikingTime);
+      	if (bikingTime < walkingTime) {
+      		alert("Biking is faster. Routing you to nearest bike.");
+      		window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination + "/data=!4m2!4m1!3e1");
+      	} else {
+      		alert("Walking is faster. Routing you to destination.");
+      		window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
+      	}
       }
-    });
+      });
+      					
 
 	/*
 	 *  Function to get available bikes
