@@ -60,34 +60,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		if (availableBikes.length == 0) {
 			alert("There are currently no bikes available.");
 		} 
-
-        // Now let's find the time it takes to walk to the destination directly.      	   	
-      	var walkingTime = findRoute(originLatLong, destinationLatLong, "walking");
-      	var bikingTime;
-      	// If we have an available bike
-      	if (availableBikes.length > 0) {
-      		// Let's check which bike is closest to the origin
-      		var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
-      		// Create new LatLng with bike's location.
-      		var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
-      		// Time to walk to the bike
-      		bikingTime = findRoute(origin, bikeLatLong , "walking");
-      		// Time to bike to the destination
-      		bikingTime += findRoute(bikeLatLong, destination, "bicycling");
-      	}
-      	console.log("Walking time: " + walkingTime);
-      	console.log("Biking time: " + bikingTime);
-      	if (bikingTime < walkingTime) {
-      		alert("Biking is faster. Routing you to nearest bike.");
-      		window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination + "/data=!4m2!4m1!3e1");
-      	} else {
-      		alert("Walking is faster. Routing you to destination.");
-      		window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
-      	}
+		var walkingTime;
+		// Now let's find the time it takes to walk to the destination directly. 
+		findRoute(originLatLong, destinationLatLong, "walking").then(function(returnFromFindRoute){
+			walkingTime = returnFromFindRoute;
+		});
+		var bikingTime;
+		// If we have an available bike
+		if (availableBikes.length > 0) {
+			// Let's check which bike is closest to the origin
+			var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
+			// Create new LatLng with bike's location.
+			var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
+			// Time to walk to the bike
+			findRoute(originLatLong, bikeLatLong , "walking").then(function(returnFromFindRoute){
+				bikingTime = returnFromFindRoute;
+			});
+			// Time to bike to the destination
+			findRoute(bikeLatLong, destinationLatLong , "bicycling").then(function(returnFromFindRoute){
+				bikingTime += returnFromFindRoute;
+			});
+		}
+		console.log("Walking time: " + walkingTime);
+		console.log("Biking time: " + bikingTime);
+		if (bikingTime < walkingTime) {
+			alert("Biking is faster. Routing you to nearest bike.");
+			window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination + "/data=!4m2!4m1!3e1");
+		} else {
+			alert("Walking is faster. Routing you to destination.");
+			window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
+		}
       }
       });
-      					
-
 	/*
 	 *  Function to get available bikes
 	 */
@@ -100,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		var availableBikes = [];
 		
 		bikes.forEach(function(bike) {
-			console.log("WARNING: CHECKING FOR TAKEN BIKES (TESTING)");
+			console.log("WARNING: CHECKING FOR TAKEN BIKES (TESTING). Change this to != Taken in production");
 				if (bike.status == "Taken") {
 				availableBikes.push(bike);
 			}
@@ -113,37 +117,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	 *  Function to determine the time to navigate
 	 */
 	function findRoute(theOrigin, theDestination, mode) {
-		// Set the travel mode
-		var theMode;
-		if (mode == "driving") {
-			theMode = google.maps.DirectionsTravelMode.DRIVING;
-		} else if (mode == "walking") {
-			theMode = google.maps.DirectionsTravelMode.WALKING;
-		} else if (mode == "bicycling") {
-			theMode = google.maps.DirectionsTravelMode.BICYCLING;
-		} else {
-			console.log("Unknown travel mode.");
-			return -1;
-		}
-		
-		// Create the Google directions request
-		var directionsService = new google.maps.DirectionsService();
-		var directionsRequest = {
-			origin: theOrigin,
-			destination: theDestination,
-			travelMode: theMode,
-			unitSystem: google.maps.UnitSystem.IMPERIAL
-		};
-		
-		directionsService.route(directionsRequest, function (response, status) {
-			if (status == google.maps.DirectionsStatus.OK) {
-				console.log("Origin: " + response.routes[0].legs[0].start_address + "\nDestination: " + response.routes[0].legs[0].end_address);
-				console.log(response);
-				return response.routes[0].legs[0].duration.value;
+	
+		return new Promise(function(accept, reject) {
+			// Set the travel mode
+			var theMode;
+			if (mode == "driving") {
+				theMode = google.maps.DirectionsTravelMode.DRIVING;
+			} else if (mode == "walking") {
+				theMode = google.maps.DirectionsTravelMode.WALKING;
+			} else if (mode == "bicycling") {
+				theMode = google.maps.DirectionsTravelMode.BICYCLING;
 			} else {
-				alert("Could not determine one of the locations.");
+				console.log("Unknown travel mode.");
 				return -1;
 			}
+		
+			// Create the Google directions request
+			var directionsService = new google.maps.DirectionsService();
+			var directionsRequest = {
+				origin: theOrigin,
+				destination: theDestination,
+				travelMode: theMode,
+				unitSystem: google.maps.UnitSystem.IMPERIAL
+			};
+		
+			directionsService.route(directionsRequest, function (response, status) {
+				if (status == google.maps.DirectionsStatus.OK) {
+					console.log("Origin: " + response.routes[0].legs[0].start_address + "\nDestination: " + response.routes[0].legs[0].end_address);
+					console.log(response);
+					accept(response.routes[0].legs[0].duration.value);
+				} else {
+					alert("Could not determine one of the locations.");
+					reject(-1);
+				}
+			});
 		});
 	}
 	
