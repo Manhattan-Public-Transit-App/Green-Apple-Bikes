@@ -23,7 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     	    padding: 10px;
     	  }
     	</style>
-    	<div class="card"><paper-input id="origin" label="Starting Location"></paper-input></div>
+    	<div class="card" style="display: flex"><paper-input id="origin" label="Starting Location" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
     	<div class="card"><paper-input id="destination" label="Destination"></paper-input></div>
     	<br><br>
     	<div class="card button-container"><paper-button id="submit" on-click="calculateRoute" raised>Determine Fastest Route</paper-button></div>
@@ -32,13 +32,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		// Initialize Variables
 		var destinationLatLong;
 		var originLatLong;
+		var originInput;
 		// If debugging, set this to true
 		var debugging = true;
 		Polymer({
 		  is: 'manhattan-transit-route',
 		  ready: function() {
 			// The following sets up the google autocomplete location fields:
-			var originInput = this.$.origin.inputElement;
+			originInput = this.$.origin.inputElement;
 			originAutocomplete = new google.maps.places.Autocomplete(originInput);
 			var destinationInput = this.$.destination.inputElement;
 			destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
@@ -98,9 +99,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				alert("No bikes available. Routing you to destination.");
 				window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
 			}
-		  }
+		  },
+		// This function is the function called by the button on the page.
+		getLocation: function(e) {
+		  	if (navigator.geolocation) {
+		  		originInput.focus();
+				originInput.value = "Getting current location... Please wait...";
+				originInput.blur();
+        		navigator.geolocation.getCurrentPosition(setPosition);
+    		} else { 
+    			alert("Geolocation is not supported by this browser.");
+    		}
+		}
 		});
-
+		
+		/*
+		 *  Function to set the current position.
+		 */
+		function setPosition(position) {
+			originInput.value = position.coords.latitude + ", " + position.coords.longitude;
+			originLatLong = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+		}
+		
 		/*
 		 *  Function to get available bikes
 		 */
