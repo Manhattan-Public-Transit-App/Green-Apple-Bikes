@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+  
+  <link rel="import" href="../manhattan-transit-map.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+  
+</head>
+<body>
+  
+  <test-fixture id="marker">
+    <template>
+      <manhattan-transit-map></manhattan-transit-map>
+    </template>
+  </test-fixture>
+
+  
+  <script>
+	describe('<manhattan-transit-map>', function() {
+		var marker;
+		
+		beforeEach(function() {
+			marker = fixture('marker');
+		});
+		
+		context('common tests', function() {
+			it('should not be draggable', function() {
+          expect(marker.draggable).to.be.equal(false);
+		  
+			});
+		});
+		
+	
+	
+</body>
+</html>
