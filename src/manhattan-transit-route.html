@@ -19,12 +19,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	    <style include="shared-styles">
 	      :host {
 	        display: block;
-	
+
     	    padding: 10px;
     	  }
     	</style>
-    	<div class="card" style="display: flex"><paper-input id="origin" label="Starting Location" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
-    	<div class="card"><paper-input id="destination" label="Destination"></paper-input></div>
+    	<div class="card" style="display: flex"><paper-input id="origin" label="Starting Location" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getOriginLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
+    	<div class="card"><paper-input id="destination" label="Destination" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
     	<br><br>
     	<div class="card button-container"><paper-button id="submit" on-click="calculateRoute" raised>Determine Fastest Route</paper-button></div>
     </template>
@@ -33,6 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		var destinationLatLong;
 		var originLatLong;
 		var originInput;
+		var destinationInput;
 		// If debugging, set this to true
 		var debugging = true;
 		Polymer({
@@ -41,9 +42,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			// The following sets up the google autocomplete location fields:
 			originInput = this.$.origin.inputElement;
 			originAutocomplete = new google.maps.places.Autocomplete(originInput);
-			var destinationInput = this.$.destination.inputElement;
+			destinationInput = this.$.destination.inputElement;
 			destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
-		
+
 			// Whenever the inputs change, set the originLatLong and destinationLatLong
 			google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
 				var place = originAutocomplete.getPlace();
@@ -59,14 +60,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			// Initialize values:
 			var origin = this.$.origin.inputElement.value;
 			var destination = this.$.destination.inputElement.value;
-		
+
 			// Get available bikes:
 			var availableBikes = getBikes();
 			if (availableBikes.length == 0) {
 				alert("There are currently no bikes available.");
-			} 
+			}
 
-			// Now let's find the time it takes to walk to the destination directly.      	   	
+			// Now let's find the time it takes to walk to the destination directly.
 			var walkingTime;
 			var bikingTime;
 			// If we have an available bike
@@ -75,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
 				// Create new LatLng with bike's location.
 				var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
-			
+
 				Promise.all([findRoute(originLatLong, destinationLatLong, "walking"), findRoute(origin, bikeLatLong , "walking"), findRoute(bikeLatLong, destination, "bicycling")]).then(function(resultArray) {
 					walkingTime = resultArray[0];
 					bikingTime = resultArray[1];
@@ -93,7 +94,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
 					}
 				}).catch(function(reason){console.log("Promise Failed:\n" + reason)});
-			
+
 			} else {
 				walkingTime = findRoute(originLatLong, destinationLatLong, "walking");
 				alert("No bikes available. Routing you to destination.");
@@ -101,26 +102,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		  },
 		// This function is the function called by the button on the page.
-		getLocation: function(e) {
+		getOriginLocation: function() {
 		  	if (navigator.geolocation) {
 		  		originInput.focus();
-				originInput.value = "Getting current location... Please wait...";
-				originInput.blur();
-        		navigator.geolocation.getCurrentPosition(setPosition);
-    		} else { 
+					originInput.value = "Getting current location... Please wait...";
+					originInput.blur();
+        	navigator.geolocation.getCurrentPosition(setOriginPosition);
+    		} else {
+    			alert("Geolocation is not supported by this browser.");
+    		}
+		},
+		getDestinationLocation: function() {
+		  	if (navigator.geolocation) {
+		  		destinationInput.focus();
+					destinationInput.value = "Getting current location... Please wait...";
+					destinationInput.blur();
+        	navigator.geolocation.getCurrentPosition(setDestinationPosition);
+    		} else {
     			alert("Geolocation is not supported by this browser.");
     		}
 		}
 		});
-		
+
 		/*
 		 *  Function to set the current position.
 		 */
-		function setPosition(position) {
+		function setOriginPosition(position) {
 			originInput.value = position.coords.latitude + ", " + position.coords.longitude;
 			originLatLong = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
 		}
-		
+
+		/*
+		 *  Function to set the current position.
+		 */
+		function setDestinationPosition(position) {
+			destinationInput.value = position.coords.latitude + ", " + position.coords.longitude;
+			destinationLatLong = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+		}
+
 		/*
 		 *  Function to get available bikes
 		 */
@@ -129,9 +148,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
 			bikeRequest.send(null)
 			var bikes = JSON.parse(bikeRequest.responseText);
-		
+
 			var availableBikes = [];
-		
+
 			bikes.forEach(function(bike) {
 				//console.log("WARNING: CHECKING FOR TAKEN BIKES (TESTING)");
 					if (bike.status != "Taken") {
@@ -146,7 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		 *  Function to determine the time to navigate
 		 */
 		function findRoute(theOrigin, theDestination, mode) {
-	
+
 			return new Promise(function(resolve, reject) {
 				// Set the travel mode
 				var theMode;
@@ -159,7 +178,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				} else {
 					reject("Unknown travel mode.");
 				}
-			
+
 				// Create the Google directions request
 				var directionsService = new google.maps.DirectionsService();
 				var directionsRequest = {
@@ -168,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					travelMode: theMode,
 					unitSystem: google.maps.UnitSystem.IMPERIAL
 				};
-		
+
 				directionsService.route(directionsRequest, function (response, status) {
 					if (status == google.maps.DirectionsStatus.OK) {
 						if (debugging) {
@@ -182,7 +201,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				});
 			});
 		}
-		
+
 		/*
 		 *  Function to find the nearest bikes to the lat/long provided.
 		 */
@@ -199,14 +218,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 			return availableBikes[closest];
 		}
-		
+
 		/*
 		 *  Function to convert degrees to radians.
 		 */
 		function Deg2Rad(deg) {
 			return deg * Math.PI / 180;
 		}
-		
+
 		/*
 		 *  Function to find the Equirectangular triangle (needed for nearest bike function).
 		 */
