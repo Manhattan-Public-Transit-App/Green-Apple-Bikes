@@ -7,8 +7,9 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/all-imports.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="manhattan-transit-report">
@@ -22,12 +23,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div class="card">
-      <h1>Report a Problem</h1>
+		<h1>Report a Problem</h1>
+		<form is="iron-form" method="POST" action="email_report.php">
+		<paper-textarea label="Report problem here" id="report" type="text"></paper-textarea>
+		<paper-button id="submit" on-click="submitReport" raised>
+			Submit
+		</paper-button>		
+		</form>
+	</div>
+	
   </template>
-
+	
   <script>
+	var message
+	
+	function submitForm(event) {
+    Polymer.dom(event).localTarget.parentElement.submit();
+}
+	
     Polymer({
-      is: 'manhattan-transit-report'
+		is: 'manhattan-transit-report',
+		
+		submitReport: function(e)
+		{
+			message = this.$.report.inputElement.value;
+			console.log(message);	
+		}
     });
+
   </script>
 </dom-module>
