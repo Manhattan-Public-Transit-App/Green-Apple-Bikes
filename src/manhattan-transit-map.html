@@ -33,6 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		<google-map-marker map="{{map}}" icon="/images/map-rack.png" latitude="{{item.latitude}}" longitude="{{item.longitude}}"></google-map-marker>
 	</template>
 	<div class="card button-container"><a href="#"><paper-button raised on-click="updateBikes">Update Map</paper-button></a></div>
+	<div class="card button-container"><a href="#"><paper-button raised on-click="racksOnOff">Show/Hide Racks</paper-button></a></div>
   </template>
   <script>
     Polymer({
@@ -46,7 +47,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				var bikes = JSON.parse(request.responseText);
 				return bikes;
 			}
-	   }
+	   },
+	   racksOnOff: function(){
+			if(this.bikes==null){
+				this.racks = new function(){
+					var request = new XMLHttpRequest();
+					request.open("GET", "/src/racks.json", false);
+					request.send(null)
+					var racks = JSON.parse(request.responseText);
+					return racks;
+				}
+			}
+			else{
+				this.bikes=null;
+			}
+	   listeners:{
+			'tap':'updateBikes'	//,
+		   // 'down':'updateBikes'
+		}
     });
     
     function loadMapObjects() {
