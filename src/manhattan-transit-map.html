@@ -48,11 +48,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 	   }
     });
-    
+
     function loadMapObjects() {
     	this.racks = new function(){
         	var request = new XMLHttpRequest();
-   			request.open("GET", "/src/racks.json", false);
+   			request.open("GET", "/data/racks.json", false);
    			request.send(null)
    			var racks = JSON.parse(request.responseText);
 			return racks;
