@@ -1,0 +1,67 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="manhattan-transit-admin">
+	<template>
+		<style include="shared-styles">
+			:host {
+				display: block;
+				padding: 10px;
+			}
+	  
+			paper-toggle-button {
+				--paper-toggle-button-checked-button-color: #009933;
+				--paper-toggle-button-checked-bar-color: #acf1c3;
+				--paper-toggle-button-checked-ink-color: white;
+				--paper-toggle-button-unchecked-ink-color: #58fe8f;
+			}
+		
+			paper-button {
+				--paper-button: #009933;
+			}
+		</style>
+	
+		<!-- class card for the adding a bike.  working prototype, may change later-->
+		<div class="card" style="display: flex">
+			<paper-input id="add" label="Bike to Add" style="display: inline-block;"></paper-input>
+			<paper-button raised class="#009933">Add</paper-button>
+		</div>
+		
+		<!-- class card for the removing a bike.  working prototype, may change later-->
+		<div class="card" style="display: flex">
+			<paper-input id="remove" label="Bike to Remove" style="display: inline-block;"></paper-input>
+			<paper-button raised class="#009933">Remove</paper-button>
+		</div>
+		
+		<!-- class card for the toggles.  
+		toggles are intended to turn bikes on and off globally on the map.
+		allowing bikes under repair to not be factored into the search algorithim -->
+		<div id="toggles" class="card" align="center">
+			<paper-toggle-button checked>Bike 1</paper-toggle-button>
+			<paper-toggle-button checked>Bike 2</paper-toggle-button>
+			<paper-toggle-button>Bike 3</paper-toggle-button>
+			<paper-toggle-button checked>Bike 4</paper-toggle-button>
+			<paper-toggle-button checked>Bike 5</paper-toggle-button>
+		</div>
+	
+	</template>
+
+	<script>
+		Polymer({
+			is: 'manhattan-transit-admin'
+		});
+	</script>
+</dom-module>

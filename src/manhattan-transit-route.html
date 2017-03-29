@@ -17,16 +17,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="manhattan-transit-route">
 	<template>
 	    <style include="shared-styles">
-	      :host {
-	        display: block;
-
-    	    padding: 10px;
-    	  }
+			:host {
+				display: block;
+				padding: 10px;
+			}
     	</style>
-    	<div class="card" style="display: flex"><paper-input id="origin" label="Starting Location" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getOriginLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
-    	<div class="card"><paper-input id="destination" label="Destination" style="display: inline-block; width: 90%;"></paper-input><paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button></div>
+    	<div class="card" style="display: flex">
+			<paper-input id="origin" label="Starting Location" style="display: inline-block; width: 90%;"></paper-input>
+			<paper-icon-button id="get-location" on-click="getOriginLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button>
+		</div>
+    	<div class="card">
+			<paper-input id="destination" label="Destination" style="display: inline-block; width: 90%;"></paper-input>
+			<paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button>
+		</div>
     	<br><br>
-    	<div class="card button-container"><paper-button id="submit" on-click="calculateRoute" raised>Determine Fastest Route</paper-button></div>
+    	<div class="card button-container">
+			<paper-button id="submit" on-click="calculateRoute" raised>Determine Fastest Route</paper-button>
+		</div>
     </template>
 	<script>
 		// Initialize Variables
@@ -37,91 +44,91 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		// If debugging, set this to true
 		var debugging = true;
 		Polymer({
-		  is: 'manhattan-transit-route',
-		  ready: function() {
-			// The following sets up the google autocomplete location fields:
-			originInput = this.$.origin.inputElement;
-			originAutocomplete = new google.maps.places.Autocomplete(originInput);
-			destinationInput = this.$.destination.inputElement;
-			destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+			is: 'manhattan-transit-route',
+			ready: function() {
+				// The following sets up the google autocomplete location fields:
+				originInput = this.$.origin.inputElement;
+				originAutocomplete = new google.maps.places.Autocomplete(originInput);
+				destinationInput = this.$.destination.inputElement;
+				destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
 
-			// Whenever the inputs change, set the originLatLong and destinationLatLong
-			google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
-				var place = originAutocomplete.getPlace();
-				originLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
-			});
-			google.maps.event.addListener(destinationAutocomplete, 'place_changed', function() {
-				var place = destinationAutocomplete.getPlace();
-				destinationLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
-			});
-		  },
-		  // This function is the function called by the button on the page.
-		  calculateRoute: function(e) {
-			// Initialize values:
-			var origin = this.$.origin.inputElement.value;
-			var destination = this.$.destination.inputElement.value;
+				// Whenever the inputs change, set the originLatLong and destinationLatLong
+				google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
+					var place = originAutocomplete.getPlace();
+					originLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
+				});
+				google.maps.event.addListener(destinationAutocomplete, 'place_changed', function() {
+					var place = destinationAutocomplete.getPlace();
+					destinationLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
+				});
+			},
+			// This function is the function called by the button on the page.
+			calculateRoute: function(e) {
+				// Initialize values:
+				var origin = this.$.origin.inputElement.value;
+				var destination = this.$.destination.inputElement.value;
 
-			// Get available bikes:
-			var availableBikes = getBikes();
-			if (availableBikes.length == 0) {
-				alert("There are currently no bikes available.");
+				// Get available bikes:
+				var availableBikes = getBikes();
+				if (availableBikes.length == 0) {
+					alert("There are currently no bikes available.");
+				}
+
+				// Now let's find the time it takes to walk to the destination directly.
+				var walkingTime;
+				var bikingTime;
+				// If we have an available bike
+				if (availableBikes.length > 0) {
+					// Let's check which bike is closest to the origin
+					var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
+					// Create new LatLng with bike's location.
+					var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
+
+					Promise.all([findRoute(originLatLong, destinationLatLong, "walking"), findRoute(origin, bikeLatLong , "walking"), findRoute(bikeLatLong, destination, "bicycling")]).then(function(resultArray) {
+						walkingTime = resultArray[0];
+						bikingTime = resultArray[1];
+						bikingTime += resultArray[2];
+						if (debugging) {
+							console.log("Inside Promise:");
+							console.log("Walking time: " + walkingTime);
+							console.log("Biking time: " + bikingTime);
+						}
+						if (bikingTime < walkingTime) {
+							alert("Biking is faster. Routing you to nearest bike.");
+							window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination + "/data=!4m2!4m1!3e1");
+						} else {
+							alert("Walking is faster. Routing you to destination.");
+							window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
+						}
+					}).catch(function(reason){console.log("Promise Failed:\n" + reason)});
+
+				} else {
+					walkingTime = findRoute(originLatLong, destinationLatLong, "walking");
+					alert("No bikes available. Routing you to destination.");
+					window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
+				}
+			},
+			// This function is the function called by the button on the page.
+			getOriginLocation: function() {
+				if (navigator.geolocation) {
+					originInput.focus();
+						originInput.value = "Getting current location... Please wait...";
+						originInput.blur();
+				navigator.geolocation.getCurrentPosition(setOriginPosition);
+				} else {
+					alert("Geolocation is not supported by this browser.");
+				}
+			},
+			getDestinationLocation: function() {
+				if (navigator.geolocation) {
+					destinationInput.focus();
+						destinationInput.value = "Getting current location... Please wait...";
+						destinationInput.blur();
+				navigator.geolocation.getCurrentPosition(setDestinationPosition);
+				} else {
+					alert("Geolocation is not supported by this browser.");
+				}
 			}
-
-			// Now let's find the time it takes to walk to the destination directly.
-			var walkingTime;
-			var bikingTime;
-			// If we have an available bike
-			if (availableBikes.length > 0) {
-				// Let's check which bike is closest to the origin
-				var theNearestBike = NearestBike(availableBikes, originLatLong.lat(), originLatLong.lng());
-				// Create new LatLng with bike's location.
-				var bikeLatLong = new google.maps.LatLng(theNearestBike.latitude,theNearestBike.longitude);
-
-				Promise.all([findRoute(originLatLong, destinationLatLong, "walking"), findRoute(origin, bikeLatLong , "walking"), findRoute(bikeLatLong, destination, "bicycling")]).then(function(resultArray) {
-					walkingTime = resultArray[0];
-					bikingTime = resultArray[1];
-					bikingTime += resultArray[2];
-					if (debugging) {
-						console.log("Inside Promise:");
-						console.log("Walking time: " + walkingTime);
-						console.log("Biking time: " + bikingTime);
-					}
-					if (bikingTime < walkingTime) {
-						alert("Biking is faster. Routing you to nearest bike.");
-						window.open("https://www.google.com/maps/dir/" + origin + "/" + bikeLatLong + "/" + destination + "/data=!4m2!4m1!3e1");
-					} else {
-						alert("Walking is faster. Routing you to destination.");
-						window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
-					}
-				}).catch(function(reason){console.log("Promise Failed:\n" + reason)});
-
-			} else {
-				walkingTime = findRoute(originLatLong, destinationLatLong, "walking");
-				alert("No bikes available. Routing you to destination.");
-				window.open("https://www.google.com/maps/dir/" + origin + "/" + destination + "/data=!4m2!4m1!3e2");
-			}
-		  },
-		// This function is the function called by the button on the page.
-		getOriginLocation: function() {
-		  	if (navigator.geolocation) {
-		  		originInput.focus();
-					originInput.value = "Getting current location... Please wait...";
-					originInput.blur();
-        	navigator.geolocation.getCurrentPosition(setOriginPosition);
-    		} else {
-    			alert("Geolocation is not supported by this browser.");
-    		}
-		},
-		getDestinationLocation: function() {
-		  	if (navigator.geolocation) {
-		  		destinationInput.focus();
-					destinationInput.value = "Getting current location... Please wait...";
-					destinationInput.blur();
-        	navigator.geolocation.getCurrentPosition(setDestinationPosition);
-    		} else {
-    			alert("Geolocation is not supported by this browser.");
-    		}
-		}
 		});
 
 		/*
@@ -195,7 +202,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							console.log(response);
 						}
 						resolve(response.routes[0].legs[0].duration.value);
-					} else {
+					} 
+					else {
 						reject("Could not determine one of the locations.");
 					}
 				});

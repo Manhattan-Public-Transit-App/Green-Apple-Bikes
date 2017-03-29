@@ -17,53 +17,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="manhattan-transit-report">
-  <template>
-    <style include="shared-styles">
-      :host {
-        display: block;
-        padding: 10px;
-      }
-    </style>
+	<template>
+		<style include="shared-styles">
+			:host {
+				display: block;
+				padding: 10px;
+			}
+		</style>
 
-    <form is="iron-form" method="POST" action="email_report.php">
-      <div class="card">
-        <paper-dropdown-menu label="What problem are you having?">
-          <paper-listbox class="dropdown-content">
-            <paper-item>I'm having a problem with the app.</paper-item>
-            <paper-item>A Green Apple Bike has a flat tire.</paper-item>
-            <paper-item>I'm having some other problem.</paper-item>
-          </paper-listbox>
-        </paper-dropdown-menu>
-      </div>
-      <div class="card">
-        <paper-input id="location" label="Location of the bike with problem" style="display: inline-block; width: 90%;"></paper-input>
-        <paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button>
-      </div>
-      <div class="card">
-        <paper-input id="bikeID" label="Please enter the ID of the bike you are having issues with."></paper-input>
-      </div>
-      <div class="card">
-        <paper-textarea label="Please describe your problem." id="report" type="text" rows="4"></paper-textarea>
-      </div>
-      <div class="card button-container">
-        <paper-button id="submit" on-click="submitReport" raised>Submit</paper-button>
-      </div>
-    </form>
-  </template>
-  <script>
-    var message;
+		<form is="iron-form" method="POST" action="email_report.php">
+			<div class="card">
+				<paper-dropdown-menu label="What problem are you having?">
+					<paper-listbox class="dropdown-content">
+						<paper-item>I'm having a problem with the app.</paper-item>
+						<paper-item>A Green Apple Bike has a flat tire.</paper-item>
+						<paper-item>I'm having some other problem.</paper-item>
+					</paper-listbox>
+				</paper-dropdown-menu>
+			</div>
+			<div class="card">
+				<paper-input id="location" label="Location of the bike with problem" style="display: inline-block; width: 90%;"></paper-input>
+				<paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button>
+			</div>
+			<div class="card">
+				<paper-input id="bikeID" label="Please enter the ID of the bike you are having issues with."></paper-input>
+			</div>
+			<div class="card">
+				<paper-textarea label="Please describe your problem." id="report" type="text" rows="4"></paper-textarea>
+			</div>
+			<div class="card button-container">
+				<paper-button id="submit" on-click="submitReport" raised>Submit</paper-button>
+			</div>
+		</form>
+	</template>
+	<script>
+		var message;
 
-    function submitForm(event) {
-      Polymer.dom(event).localTarget.parentElement.submit();
-    }
+		function submitForm(event) {
+			Polymer.dom(event).localTarget.parentElement.submit();
+		}
 
-    Polymer({
-      is: 'manhattan-transit-report',
+		Polymer({
+			is: 'manhattan-transit-report',
 
-      submitReport: function(e) {
-        message = this.$.report.inputElement.value;
-        console.log(message);
-      }
-    });
-  </script>
+		submitReport: function(e) {
+			message = this.$.report.inputElement.value;
+			console.log(message);
+		}
+		});
+	</script>
 </dom-module>
