@@ -42,26 +42,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		
 		<!-- class card for the removing a bike.  working prototype, may change later-->
 		<div class="card" style="display: flex">
-			<paper-input id="remove" label="Bike to Remove" style="display: inline-block;"></paper-input>
-			<paper-button raised class="#009933">Remove</paper-button>
+			<paper-input id="remove" label="Bike to Remove"  style="display: inline-block;"></paper-input>
+			<paper-button on-click="getBikesArray" raised class="#009933">Remove</paper-button>
 		</div>
 		
 		<!-- class card for the toggles.  
 		toggles are intended to turn bikes on and off globally on the map.
 		allowing bikes under repair to not be factored into the search algorithim -->
 		<div id="toggles" class="card" align="center">
-			<paper-toggle-button checked>Bike 1</paper-toggle-button>
-			<paper-toggle-button checked>Bike 2</paper-toggle-button>
-			<paper-toggle-button>Bike 3</paper-toggle-button>
-			<paper-toggle-button checked>Bike 4</paper-toggle-button>
-			<paper-toggle-button checked>Bike 5</paper-toggle-button>
+			<template is="dom-repeat" items="{{bikes}}">
+				<paper-toggle-button checked={{item.checked}}>{{item.id}}</paper-toggle-button>
+			</template>
+
 		</div>
 	
 	</template>
 
 	<script>
 		Polymer({
-			is: 'manhattan-transit-admin'
+			is: 'manhattan-transit-admin',
+			
+			ready: function() {
+				this.bikes = getBikes();
+				//to do: add event listener so toggles effect server
+			}
 		});
+		
+		function getBikes() {
+			var bikeRequest = new XMLHttpRequest();
+			bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
+			bikeRequest.send(null)
+			var bikes = JSON.parse(bikeRequest.responseText);
+			var availableBikes = []; //empty array that will hold bikes
+			var check = true;
+
+			bikes.forEach(function(bike) {
+				bike.checked = check;
+				check = !check;
+				availableBikes.push(bike); //adds bike on server to array
+			});
+			
+			//if (debugging) { console.log("There are " + availableBikes.length + " bikes available."); }
+			return availableBikes;
+		}
 	</script>
 </dom-module>
