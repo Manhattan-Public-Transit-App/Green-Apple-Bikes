@@ -8,82 +8,98 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
+<!-- pages and files being imported -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="manhattan-transit-admin">
-	<template>
-		<style include="shared-styles">
-			:host {
-				display: block;
-				padding: 10px;
+<dom-module id="manhattan-transit-admin"> <!-- gives admin page content an id so it can be located by other code/pages -->
+	<template> <!-- template that manages page styling and layout -->
+		<style include="shared-styles"> <!-- import shared styles that all webpages have -->
+			:host { <!-- style choices for something polymer related -->
+				display: block; <!-- sets display to block -->
+				padding: 10px; <!-- gieves a 10 pixel padding between stuff -->
 			}
 	  
-			paper-toggle-button {
-				--paper-toggle-button-checked-button-color: #009933;
-				--paper-toggle-button-checked-bar-color: #acf1c3;
-				--paper-toggle-button-checked-ink-color: white;
-				--paper-toggle-button-unchecked-ink-color: #58fe8f;
+			paper-toggle-button { <!-- style choices for the paper-toggle-button element -->
+				--paper-toggle-button-checked-button-color: #009933; <!-- makes the circle button green when checked -->
+				--paper-toggle-button-checked-bar-color: #acf1c3; <!-- makes the slider bar a duller green when checked -->
+				--paper-toggle-button-checked-ink-color: white; <!-- sets the ripple color to white when unchecking a button -->
+				--paper-toggle-button-unchecked-ink-color: #58fe8f; <!-- sets the ripple color to green when checking the button -->
 			}
 		
-			paper-button {
-				--paper-button: #009933;
+			paper-button { <!-- style choices for paper-button element -->
+				--paper-button: #009933; <!-- sets paper button color to green - overrides shared styles setting for paper button -->
 			}
 		</style>
 	
-		<!-- class card for the adding a bike.  working prototype, may change later-->
-		<div class="card" style="display: flex">
-			<paper-input id="add" label="Bike to Add" style="display: inline-block;"></paper-input>
-			<paper-button raised class="#009933">Add</paper-button>
+		<!-- class card for the adding a bike.  working prototype, *probably getting removed* -->
+		<div class="card" style="display: flex"> <!-- makes the rectangular card that the elements will sit on top of for adding bikes -->
+			<paper-input id="add" label="Bike to Add" style="display: inline-block;"></paper-input> <!-- builds a text input on the card that will add bikes -->
+			<paper-button raised class="#009933">Add</paper-button> <!-- adds a papper button, when pressed will take input from paper-input -->
 		</div>
 		
-		<!-- class card for the removing a bike.  working prototype, may change later-->
-		<div class="card" style="display: flex">
-			<paper-input id="remove" label="Bike to Remove"  style="display: inline-block;"></paper-input>
-			<paper-button on-click="getBikesArray" raised class="#009933">Remove</paper-button>
+		<!-- class card for the removing a bike.  working prototype, *probably getting removed* -->
+		<div class="card" style="display: flex"> <!-- maes rectangular card for the elements of remove a bike -->
+			<paper-input id="remove" label="Bike to Remove"  style="display: inline-block;"></paper-input> <!-- builds a text input that gathers info onthe bike to remove -->
+			<paper-button on-click="getBikesArray" raised class="#009933">Remove</paper-button> <!-- button that when pushed will take data from input -->
 		</div>
 		
-		<!-- class card for the toggles.  
+		<!-- 
+		class card for the toggles.  
 		toggles are intended to turn bikes on and off globally on the map.
-		allowing bikes under repair to not be factored into the search algorithim -->
-		<div id="toggles" class="card" align="center">
-			<template is="dom-repeat" items="{{bikes}}">
-				<paper-toggle-button checked={{item.checked}}>{{item.id}}</paper-toggle-button>
+		allowing bikes under repair to not be factored into the search algorithim 
+		-->
+		<div id="toggles" class="card" align="center"> <!-- creates rectangular card for toggles -->
+			<!-- 
+			template allows toggles to be repeated based on number of bikes on the server 
+			dom-repeat tells it to repeat for the number of items found in the bikes property
+			{{bikes}} is the array of bikes found on the server created on paage start up
+			-->
+			<template is="dom-repeat" items="{{bikes}}"> 
+				<!-- 
+				creates paper-toggle-button element
+				sets the default toggle postion based on the bool value of the current item in bikes
+				gives the toggle-button a text label that is the id of the current bike
+				-->
+				<paper-toggle-button checked={{item.checked}}>{{item.id}}</paper-toggle-button> 
 			</template>
-
 		</div>
-	
+		
 	</template>
 
 	<script>
-		Polymer({
-			is: 'manhattan-transit-admin',
+		Polymer({  //special polymer function go in here
+			is: 'manhattan-transit-admin', //gives page id
 			
-			ready: function() {
-				this.bikes = getBikes();
+			ready: function() { //functions called on intial page creation 
+				this.bikes = getBikes(); //creates local variable for bikes found via the getBikes function
 				//to do: add event listener so toggles effect server
 			}
 		});
 		
+		/*
+		description: goes to server and gets information on all bikes being tracked and returns them in an array
+		@(return) availableBikes: array containing bikes found on server
+		*/
 		function getBikes() {
-			var bikeRequest = new XMLHttpRequest();
-			bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
-			bikeRequest.send(null)
-			var bikes = JSON.parse(bikeRequest.responseText);
+			var bikeRequest = new XMLHttpRequest(); //creates a new request to the server API
+			bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false); // open the request that will be used to get the bikes info
+			bikeRequest.send(null) //send the request for the bikes info
+			var bikes = JSON.parse(bikeRequest.responseText); //parses the JSON object returned from the server
 			var availableBikes = []; //empty array that will hold bikes
-			var check = true;
+			var check = true; //bool that will allow me to set toggles to alternating default postion *will remove to add correct functionality*
 
-			bikes.forEach(function(bike) {
-				bike.checked = check;
-				check = !check;
-				availableBikes.push(bike); //adds bike on server to array
+			bikes.forEach(function(bike) { //for each bike found on the server, add a checked property to it, and add it to the availableBikes array
+				bike.checked = check; //sets property for if the bike needs to be toggled on or off *to be removed*
+				check = !check; //toggles what to set each toggle-button to defaultly *to be removed*
+				availableBikes.push(bike); //adds bike from list found on server to array of toggles to create
 			});
 			
 			//if (debugging) { console.log("There are " + availableBikes.length + " bikes available."); }
-			return availableBikes;
+			return availableBikes; //returns array of bikes found on server
 		}
 	</script>
 </dom-module>
