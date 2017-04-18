@@ -70,8 +70,7 @@ $app->get('/api/setLocation', function (Request $request, Response $response) {
 	return json_encode($arr);
 });
 //Gets the current Location to bikes that available(have not moved for 10 minutes)
-$app->get('/api/getLocation', function (Request $request, Response $response) {
-	
+$app->get('/api/getLocation', function (Request $request, Response $response) {	
 	$conn = new mysqli("localhost","USERNAME","PASSWORD","GAB");
 	$dateNow = date("Y-m-d H:i:00")-statusAvailable;
 	//Get all bikes from Database from ~10 minutes ago
@@ -159,5 +158,21 @@ $app->get('/api/getLocation', function (Request $request, Response $response) {
 	//Return array of all bikes with status updated
     return json_encode($returnArr);
 });
+
+//http://coenraets.org/blog/2011/12/restful-services-with-jquery-php-and-the-slim-framework/
+$app->post('/api/changeBikeEnabled', function(){
+	$request = Slim::getInstance()->request();
+	$bikeInfo = json_decode($request->getBody());
+	$sql = "INSERT into ENABLE_BIKES (bikeID, enabled) VALUES (:bikeID, :enabled)";
+	try{
+		$conn = new mysqli("localhost","USERNAME","PASSWORD","GAB");
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("bikeID",$bikeInfo->bikeID);
+		$stmt->bindParam("enabled",$bikeInfo->enabled);
+		$stmt->execute();
+	}
+	} catch(PDOException $e) {
+        echo '{"error":{"text":'. $e->getMessage() .'}}';
+    }
 $app->run();
 ?>
