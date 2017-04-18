@@ -1,0 +1,7 @@
+Database Documentation
+
+There are two MySQL tables that are necessary for the implementation. 
+1.) A BIKE_LOCATIONS which stores id (ID in the database), bikeID (The unique ID associated to a bike), longitude, latitude, status (Is the bike available or not), date (Timestamp at that current time), and time (Time between last time the bike has moved).
+2.) ENABLE_BIKE which is an associated table with BIKE_LOCATIONS that has ID (ID in the database), bikeID (The unique ID associated to a bike), and enabled (Is the bike being tracked currently).
+
+The BIKE_LOCATIONS database is used to track the history of each bike alongwith giving up to date information for API calls. The ENABLE_BIKE is used in association with BIKE_LOCATIONS and tells us if a bike needs to be tracked or not. This could be do to maintanence issues, battery dead, etc.
