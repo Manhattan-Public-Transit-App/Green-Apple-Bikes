@@ -37,7 +37,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	<script>
 		Polymer({
 			is: 'manhattan-transit-map',
+			<!-- Function that runs before map loads -->
 			ready: loadMapObjects,
+			<!-- Function that gets bike locations and updates location on map after the map has loaded -->
 			updateBikes: function() {
 			this.bikes = new function(){
 				var request = new XMLHttpRequest();
@@ -47,18 +49,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				return bikes;
 			}
 		   },
+		   <!-- Function that turns bike rack locations On/Off and updates status on map after map has loaded -->
 		   racksOnOff: function(){
-				if(this.bikes==null){
+				if(this.racks==null){
 					this.racks = new function(){
 						var request = new XMLHttpRequest();
-						request.open("GET", "/src/racks.json", false);
+						request.open("GET", "/data/racks.json", false);
 						request.send(null)
 						var racks = JSON.parse(request.responseText);
 						return racks;
 					}
 				}
 				else{
-					this.bikes=null;
+					this.racks=null;
 				}
 			},
 		   listeners:{
@@ -66,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			   // 'down':'updateBikes'
 			}
 		});
-
+		<!-- Function that gets bike locations and bike rack locations and then puts them on the map before the map has loaded -->
 		function loadMapObjects() {
 			this.racks = new function(){
 				var request = new XMLHttpRequest();
