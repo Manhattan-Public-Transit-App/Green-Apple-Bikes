@@ -16,53 +16,92 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="manhattan-transit-report">
+<!-- creates id that allows other pages to find and interact with this one -->
+<dom-module id="manhattan-transit-report"> 
+<!-- creates design template for the page -->
 	<template>
-		<style include="shared-styles">
+		<!-- style choices such as color for web components -->
+		<style include="shared-styles"> <!-- imports the shared-styles page which contains the general settings for the project -->
 			:host {
-				display: block;
+				display: block; 
 				padding: 10px;
 			}
 		</style>
-
-		<form is="iron-form" method="POST" action="email_report.php">
-			<div class="card">
-				<paper-dropdown-menu label="What problem are you having?">
-					<paper-listbox class="dropdown-content">
-						<paper-item>I'm having a problem with the app.</paper-item>
-						<paper-item>A Green Apple Bike has a flat tire.</paper-item>
-						<paper-item>I'm having some other problem.</paper-item>
+		<!-- creates a iron-form element which improves the apperence/handling of a regular form -->
+		<!-- is property tells sets the type of form -->
+		<!-- action will make it send an email update upon completion to the designated email address on the email_report.php file -->
+		<form is="iron-form" method="POST" action="email_report.php"> 
+			<div class="card"> <!-- creates rectangle card to contain the form elements -->
+			
+				<!-- web component for the dropdown box where the user selects the problem they are having from a preset list -->
+				<paper-dropdown-menu label="What problem are you having?"> <!-- creates the paper dropdown component and sets its label to the string value -->
+					<paper-listbox class="dropdown-content"> <!-- creates the list of selectable problems -->
+						<paper-item>I'm having a problem with the app.</paper-item> <!-- adds option to the list -->
+						<paper-item>A Green Apple Bike has a flat tire.</paper-item> <!-- adds option to the list -->
+						<paper-item>I'm having some other problem.</paper-item> <!-- adds option to the list -->
 					</paper-listbox>
 				</paper-dropdown-menu>
-			</div>
-			<div class="card">
-				<paper-input id="location" label="Location of the bike with problem" style="display: inline-block; width: 90%;"></paper-input>
+				
+			    <br> <!-- spacing to decrease cluter of to many web components -->
+				<br>
+				
+				<!-- creates a paper component that takes in text from the user / intended to get user's location -->
+				<!-- id: sets this paper-input's local id to location-->
+				<!-- lebel: sets the label displayed on the webpage -->
+				<!-- style: sets additional style choices that allows the paper-icon-button to display on the same line -->
+				<paper-input id="location" label="Location of the bike with problem" style="display: inline-block; width: 95%;"></paper-input>
+				
+				<!-- creates a button that can have an image set to represent it / intended to generate current location on click -->
+				<!-- id: sets icon-button's local id -->
+				<!-- on-click: sets what happens after icon-button is clicked / calls the getDestinationLocation JavaScript method from common methods file -->
+				<!-- src: sets the image used by the icon-button -->
+				<!-- style: sets the max height of the image -->
 				<paper-icon-button id="get-location" on-click="getDestinationLocation" src="/images/get-location.png" style="margin-top: 15px;"></paper-icon-button>
-			</div>
-			<div class="card">
+				
+				<br> <!-- spacing to decrease cluter of to many web components -->
+				<br>
+				
+				<!-- creates a paper component that takes in text from the user / intended to get the bike id from the user -->
+				<!-- id: sets this paper-input's local id to bikeID -->
+				<!-- label: sets the label that will be displayed by the webpage -->
 				<paper-input id="bikeID" label="Please enter the ID of the bike you are having issues with."></paper-input>
-			</div>
-			<div class="card">
-				<paper-textarea label="Please describe your problem." id="report" type="text" rows="4"></paper-textarea>
-			</div>
-			<div class="card button-container">
-				<paper-button id="submit" on-click="submitReport" raised>Submit</paper-button>
+				
+				<br> <!-- spacing to decrease cluter of to many web components -->
+				
+				<!-- creates a paper-textarea component / intended to get problem description from user -->
+				<!-- label: sets the components label that will be displayed by webpage -->
+				<!-- id: sets the textarea's local id to report -->
+				<!-- type: sets the type of text area so that it takes in all text -->
+				<!-- rows: sets the number of lines shown for the textarea -->
+				<paper-textarea label="Please describe your problem." id="report" type="text" rows="4"></paper-textarea>	
+				
+				<div class="card button-container"> <!-- creates a rectangular card for the submit button / makes button more noticable -->
+					<!-- creates paper-button component / intended to be a submit button -->
+					<!-- id: sets buttons local id to submit -->
+					<!-- on-click: method call triggered when button is pressed -->
+					<!-- raised: raises button to make it more noticable -->			
+					<paper-button id="submit" on-click="submitReport" raised> 
+						Submit <!-- text inside of button -->
+					</paper-button>
+				</div>
 			</div>
 		</form>
 	</template>
+	
 	<script>
-		var message;
-
-		function submitForm(event) {
-			Polymer.dom(event).localTarget.parentElement.submit();
+		var message; //message created by form submmission
+		
+		//@param(event): button click event
+		function submitForm(event) { //function for submit button click
+			Polymer.dom(event).localTarget.parentElement.submit(); //polymer function call for form submission
 		}
 
 		Polymer({
-			is: 'manhattan-transit-report',
+			is: 'manhattan-transit-report', //sets page id for Polymer
 
-		submitReport: function(e) {
-			message = this.$.report.inputElement.value;
-			console.log(message);
+		submitReport: function(e) { //function that handles form submision
+			message = this.$.report.inputElement.value; //sets message to form details
+			console.log(message); //logs message for debugging purposes
 		}
 		});
 	</script>
