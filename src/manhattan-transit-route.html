@@ -12,7 +12,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc&libraries=places"></script>
+<script type='text/javascript' src='../lib/keys.js'></script>
+<script type='text/javascript' src='../lib/greenapplebikes.js'></script>
 
 <dom-module id="manhattan-transit-route">
 	<template>
@@ -48,19 +49,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			ready: function() {
 				// The following sets up the google autocomplete location fields:
 				originInput = this.$.origin.inputElement;
-				originAutocomplete = new google.maps.places.Autocomplete(originInput);
 				destinationInput = this.$.destination.inputElement;
-				destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
-
-				// Whenever the inputs change, set the originLatLong and destinationLatLong
-				google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
-					var place = originAutocomplete.getPlace();
-					originLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
-				});
-				google.maps.event.addListener(destinationAutocomplete, 'place_changed', function() {
-					var place = destinationAutocomplete.getPlace();
-					destinationLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
-				});
+				loadGoogleMapsAPI(googleMapsApiKey, "initializeGoogleMaps");
 			},
 			// This function is the function called by the button on the page.
 			calculateRoute: function(e) {
@@ -69,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				var destination = this.$.destination.inputElement.value;
 
 				// Get available bikes:
-				var availableBikes = getBikes();
+				var availableBikes = getBikesWithStatus("Available", bikesApiUrl);
 				if (availableBikes.length == 0) {
 					alert("There are currently no bikes available.");
 				}
@@ -131,8 +121,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 		});
 
+		function initializeGoogleMaps() {
+			originAutocomplete = new google.maps.places.Autocomplete(originInput);
+			destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+
+			// Whenever the inputs change, set the originLatLong and destinationLatLong
+			google.maps.event.addListener(originAutocomplete, 'place_changed', function() {
+				var place = originAutocomplete.getPlace();
+				originLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
+			});
+			google.maps.event.addListener(destinationAutocomplete, 'place_changed', function() {
+				var place = destinationAutocomplete.getPlace();
+				destinationLatLong = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
+			});
+
+		}
+
 		/*
-		 *  Function to set the current position.
+		 *  Function to set the current position to the origin field.
 		 */
 		function setOriginPosition(position) {
 			originInput.value = position.coords.latitude + ", " + position.coords.longitude;
@@ -140,32 +146,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		}
 
 		/*
-		 *  Function to set the current position.
+		 *  Function to set the current position to destination field.
 		 */
 		function setDestinationPosition(position) {
 			destinationInput.value = position.coords.latitude + ", " + position.coords.longitude;
 			destinationLatLong = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-		}
-
-		/*
-		 *  Function to get available bikes
-		 */
-		function getBikes() {
-			var bikeRequest = new XMLHttpRequest();
-			bikeRequest.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
-			bikeRequest.send(null)
-			var bikes = JSON.parse(bikeRequest.responseText);
-
-			var availableBikes = [];
-
-			bikes.forEach(function(bike) {
-				//console.log("WARNING: CHECKING FOR TAKEN BIKES (TESTING)");
-					if (bike.status != "Taken") {
-					availableBikes.push(bike);
-				}
-			});
-			if (debugging) { console.log("There are " + availableBikes.length + " bikes available."); }
-			return availableBikes;
 		}
 
 		/*
@@ -202,51 +187,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 							console.log(response);
 						}
 						resolve(response.routes[0].legs[0].duration.value);
-					} 
+					}
 					else {
 						reject("Could not determine one of the locations.");
 					}
 				});
 			});
-		}
-
-		/*
-		 *  Function to find the nearest bikes to the lat/long provided.
-		 */
-		function NearestBike(availableBikes, latitude, longitude) {
-			var mindif = 99999;
-			var closest;
-
-			for (i = 0; i < availableBikes.length; i++) {
-				var dif = PythagorasEquirectangular(latitude, longitude, availableBikes[i].latitude, availableBikes[i].longitude);
-				if (dif < mindif) {
-					closest = i;
-					mindif = dif;
-				}
-			}
-			return availableBikes[closest];
-		}
-
-		/*
-		 *  Function to convert degrees to radians.
-		 */
-		function Deg2Rad(deg) {
-			return deg * Math.PI / 180;
-		}
-
-		/*
-		 *  Function to find the Equirectangular triangle (needed for nearest bike function).
-		 */
-		function PythagorasEquirectangular(lat1, lon1, lat2, lon2) {
-			lat1 = Deg2Rad(lat1);
-			lat2 = Deg2Rad(lat2);
-			lon1 = Deg2Rad(lon1);
-			lon2 = Deg2Rad(lon2);
-			var R = 6371; // km
-			var x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
-			var y = (lat2 - lat1);
-			var d = Math.sqrt(x * x + y * y) * R;
-			return d;
 		}
 	</script>
 </dom-module>

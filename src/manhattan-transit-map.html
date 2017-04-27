@@ -12,6 +12,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/google-map/google-map.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="shared-styles.html">
+<script type='text/javascript' src='../lib/keys.js'></script>
+<script type='text/javascript' src='../lib/greenapplebikes.js'></script>
 <dom-module id="manhattan-transit-map">
 	<template is="dom-bind">
 		<style include="shared-styles">
@@ -24,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				zoom =50;
 			}
 		</style>
-		<google-map map="{{map}}" latitude="39.1836" longitude="-96.5717" zoom ="14" api-key="AIzaSyDTl1JhIHmAfin_kXUBYCnAeIkudpJypcc"></google-map>
+		<google-map map="{{map}}" latitude="39.1836" longitude="-96.5717" zoom="14" api-key="{{apiKey}}"></google-map>
 		<template is="dom-repeat" items="{{bikes}}">
 			<google-map-marker map="{{map}}" icon="/images/map-bike.png" latitude="{{item.latitude}}" longitude="{{item.longitude}}"></google-map-marker>
 		</template>
@@ -32,42 +34,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<google-map-marker map="{{map}}" icon="/images/map-rack.png" latitude="{{item.latitude}}" longitude="{{item.longitude}}"></google-map-marker>
 		</template>
 		<div class="card button-container"><a href="#"><paper-button raised on-click="racksOnOff">Show/Hide Racks</paper-button></a></div>
-
 	</template>
 	<script>
 		Polymer({
 			is: 'manhattan-transit-map',
 			<!-- Function that runs before map loads -->
 			ready: loadMapObjects,
-			<!-- Function that gets bike locations and updates location on map after the map has loaded -->
-			updateBikes: function() {
-			this.bikes = new function(){
-				var request = new XMLHttpRequest();
-				request.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
-				request.send(null)
-				var bikes = JSON.parse(request.responseText);
-				return bikes;
-			}
-		   },
-		   <!-- Function that turns bike rack locations On/Off and updates status on map after map has loaded -->
-		   racksOnOff: function(){
-				if(this.racks==null){
-					this.racks = new function(){
-						var request = new XMLHttpRequest();
-						request.open("GET", "/data/racks.json", false);
-						request.send(null)
-						var racks = JSON.parse(request.responseText);
-						return racks;
-					}
+			properties: {
+				apiKey: {
+					type: String,
+					notify: true,
+					value: googleMapsApiKey
 				}
-				else{
+			},
+            <!-- Function that gets bike locations and updates location on map after the map has loaded -->
+			updateBikes: function() {
+				this.bikes = new function(){
+					var request = new XMLHttpRequest();
+					request.open("GET", bikesApiUrl, false);
+					request.send(null)
+					var bikes = JSON.parse(request.responseText);
+					return bikes;
+				}
+            },
+            <!-- Function that turns bike rack locations On/Off and updates status on map after map has loaded -->
+            racksOnOff: function(){
+                if (this.racks==null) {
+                    this.racks = new function() {
+                        var request = new XMLHttpRequest();
+                        request.open("GET", "/data/racks.json", false);
+                        request.send(null)
+                        var racks = JSON.parse(request.responseText);
+                        return racks;
+                    }
+                } else {
 					this.racks=null;
 				}
 			},
-		   listeners:{
-				'down':'updateBikes'	//,
-			   // 'down':'updateBikes'
-			}
+            listeners:{
+				'down':'updateBikes'
+            }
 		});
 		<!-- Function that gets bike locations and bike rack locations and then puts them on the map before the map has loaded -->
 		function loadMapObjects() {
@@ -80,7 +86,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 			this.bikes = new function(){
 				var request = new XMLHttpRequest();
-				request.open("GET", "http://129.130.82.141/index.php/api/getLocation", false);
+				request.open("GET", bikesApiUrl, false);
 				request.send(null)
 				var bikes = JSON.parse(request.responseText);
 				return bikes;
