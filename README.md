@@ -1,6 +1,6 @@
 # Green Apple Bikes Web Application
 
-### Setup
+## User Interface Setup
 
 ##### Prerequisites
 First, install [node.js](https://nodejs.org/en/). Follow the instructions at the link.
@@ -21,7 +21,12 @@ Now, navigate to the directory where the project is cloned. You will now install
 
     bower install
 
-You have now set up the project.
+#### Set up your API keys
+
+Navigate to the directory where the project is cloned. Open the `lib` folder, and duplicate the file `keys example.js`. Rename the duplicate to `keys.js`. Edit the file, entering a Google Maps API key ([get an API key](https://developers.google.com/maps/documentation/javascript/get-api-key)), and the URL to the API (You will have this url after following the API Setup instructions below). Save the file.
+
+
+__You have now set up the project.__
 
 ### Start the development server
 
@@ -29,6 +34,8 @@ This command serves the project at `http://localhost:8080` and provides basic UR
 routing for the project:
 
     polymer serve --open
+
+Use this for development purposes. If you are deploying the project for production use, follow the build instructions below and deploy it to a capable web server.
 
 ### Build
 
@@ -62,3 +69,6 @@ This command will run [Web Component Tester](https://github.com/Polymer/web-comp
 against the browsers currently installed on your machine:
 
     polymer test
+
+
+## API Setup
