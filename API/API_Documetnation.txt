@@ -1,0 +1,5 @@
+API
+
+/api/setLocation - Gets the current bike longitude, latitude, status, bikeId, and current date/time and returns it as a JSON object
+
+/api/getLocation - Gets the current available bike locations and returns them as JSON objects that contains longitude, latitude, status, bikeId, id, date, time
